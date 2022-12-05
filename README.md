@@ -1,12 +1,36 @@
 <div align="center">
 
-<img src="" />
+<img src="./.github/logo.png" height="150px" width="150px"/>
 
-minimalist, fast Racket web server -- Rackever
+low-level, and zero dependencies Racket web server
+
+Rackever
 
 </div>
 
+---
+
+__This project is still under active development__
+
 ## Start
+```racket
+(route/register-html-handle
+ #:path ""
+ #:handle (lambda (request-info query in out)
+            (display
+             (xexpr->string '(html (head (title "Hello")) (body "Hi!")))
+             out)))
+```
+
+run test with `racket test.rkt`:
+```
+| Monday, December 5th, 2022 9:49:57pm  [INFO    ]      register a html handle on  with #<procedure:...e/rackever/test.rkt:9:10>
+| Monday, December 5th, 2022 9:49:57pm  [INFO    ]      starting server on port 8080
+| Monday, December 5th, 2022 9:49:57pm  [INFO    ]      server start complete
+Press enter to exit server
+
+| Monday, December 5th, 2022 9:49:59pm  [INFO    ]      server down
+```
 
 ## License
 

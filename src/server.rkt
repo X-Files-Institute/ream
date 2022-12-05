@@ -29,12 +29,13 @@
 
 (require racket/tcp
          "config.rkt"
-         "handle.rkt")
+         "handle.rkt"
+         "logger.rkt")
 
 #| Takes an IP port number for client connections. |#
 (define (server/start [config config/default])
+  (log/info (format "starting server on port ~a" (config/struct-port config)))
   (let ([main-cust (make-custodian)])
-
     ;; Limit the total memory used by the server
     (custodian-limit-memory main-cust (config/struct-memory-limit config))
     
@@ -44,7 +45,9 @@
                          (handle/accept listener #:connection-memory-limit (config/struct-connection-memory-limit config))
                          (loop listener))])
           (let ([server-thread (thread (lambda () (loop listener)))])
+            (log/info "server start complete")
             (lambda ()
+              (log/info "server down")
               (kill-thread server-thread)
               (tcp-close listener))))))))
 

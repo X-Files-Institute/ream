@@ -28,7 +28,8 @@
 
 (require net/url
          "http-status-code.rkt"
-         "response.rkt")
+         "response.rkt"
+         "logger.rkt")
 
 #| If the route is not registered, this exception is thrown when trying to access. |#
 (define-struct No-Handler-Found-Exn (str-path))
@@ -54,6 +55,7 @@
 
 #| register a html handle |#
 (define (route/register-html-handle #:path path #:handle handle)
+  (log/info (format "register a html handle on ~a with ~a" path handle))
   (route/register #:path path
                   #:handle (lambda (request-info query in out)
                              (display (http-status-code/build-status-info 'ok) out)

@@ -26,40 +26,15 @@
 
 #lang racket/base
 
-(require racket/tcp
-         racket/match
-         "request.rkt"
-         "route.rkt"
-         "http-status-code.rkt"
-         "logger.rkt"
-         "response.rkt")
+(require "utils.rkt")
 
-#| accepts a connection and returns a stream for input from the client, a stream for output to the client. |#
-(define (handle/accept listener #:connection-memory-limit connection-memory-limit)
-  (let ([connection-cust (make-custodian)])
+(define (log/info msg)
+  (display "| ")
+  (parameterize ([foreground-color 'white])
+    (color-display (current-time)))
+  (parameterize ([foreground-color 'green])
+    (color-display (format "\t[INFO    ]\t~a\n" msg)))
 
-    ;; Limit the memory used by each connection
-    (custodian-limit-memory connection-cust connection-memory-limit)
-    
-    (parameterize ([current-custodian connection-cust])
-      (let-values ([(in out) (tcp-accept listener)])
-        (let* ([connection-thread (thread
-                                   (lambda ()
-                                     (handle in out)
-                                     (close-input-port in)
-                                     (close-output-port out)))]
-               [watcher-thread (thread
-                                (lambda ()
-                                  (sleep 10)
-                                  (custodian-shutdown-all connection-cust)))])
-          watcher-thread)))))
+  (flush-output))
 
-#| handle a connection |#
-(define (handle in out)
-  (let ([request-info (request/get-info in #:info-type 'header)])
-    (when request-info
-      (log/info (format "request recevied -> ~a" request-info))
-      (let ([handle (route/dispatch (list-ref request-info 1))])
-        (handle request-info in out)))))
-
-(provide handle/accept)
+(provide log/info)
