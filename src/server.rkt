@@ -31,13 +31,19 @@
          xml
          net/url)
 
+(define-struct server-config (port memory-limit connection-memory-limit))
+
 #| Takes an IP port number for client connections. |#
-(define (server/start port-no)
+(define (server/start config)
   (let ([main-cust (make-custodian)])
+
+    ;; Limit the total memory used by the server
+    (custodian-limit-memory main-cust (server-config-memory-limit config))
+    
     (parameterize ([current-custodian main-cust])
-      (let ([listener (tcp-listen port-no 5 #t)])
+      (let ([listener (tcp-listen (server-config-port config) 5 #t)])
         (letrec ([loop (lambda (listener)
-                         (accept-and-handle listener)
+                         (accept-and-handle listener #:connection-memory-limit (server-config-connection-memory-limit config))
                          (loop listener))])
           (let ([server-thread (thread (lambda () (loop listener)))])
             (lambda ()
@@ -45,9 +51,12 @@
               (tcp-close listener))))))))
 
 #| accepts a connection and returns a stream for input from the client, a stream for output to the client. |#
-(define (accept-and-handle listener)
+(define (accept-and-handle listener #:connection-memory-limit connection-memory-limit)
   (let ([connection-cust (make-custodian)])
-    (custodian-limit-memory connection-cust (* 50 1024 1024))
+
+    ;; Limit the memory used by each connection
+    (custodian-limit-memory connection-cust connection-memory-limit)
+    
     (parameterize ([current-custodian connection-cust])
       (let-values ([(in out) (tcp-accept listener)])
         (let* ([connection-thread (thread
