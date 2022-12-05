@@ -24,28 +24,22 @@
 ;; SOFTWARE.                                                                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
 #lang racket/base
 
-(require racket/tcp
-         "config.rkt"
-         "handle.rkt")
+#| Default maximum memory usage per connection : 5MB |#
+(define DEFAULT_CONNECTION_MEMORY_LIMIT (* 5 1024 1024))
 
-#| Takes an IP port number for client connections. |#
-(define (server/start [config config/default])
-  (let ([main-cust (make-custodian)])
+#| Default server maximum memory usage : 500MB |#
+(define DEFAULT_SERVER_MEMORY_LIMIT (* 100 DEFAULT_CONNECTION_MEMORY_LIMIT))
 
-    ;; Limit the total memory used by the server
-    (custodian-limit-memory main-cust (config/struct-memory-limit config))
-    
-    (parameterize ([current-custodian main-cust])
-      (let ([listener (tcp-listen (config/struct-port config) 5 #t)])
-        (letrec ([loop (lambda (listener)
-                         (handle/accept listener #:connection-memory-limit (config/struct-connection-memory-limit config))
-                         (loop listener))])
-          (let ([server-thread (thread (lambda () (loop listener)))])
-            (lambda ()
-              (kill-thread server-thread)
-              (tcp-close listener))))))))
+(define-struct config/struct (port memory-limit connection-memory-limit))
 
-(provide server/start)
+#| Server default configuration
+|| Port number used by default : 8080
+|| Default server maximum memory usage : 500MB
+|| Default maximum memory usage per connection : 5MB |#
+(define config/default
+  (config/struct 8080 DEFAULT_SERVER_MEMORY_LIMIT DEFAULT_CONNECTION_MEMORY_LIMIT))
+
+(provide (struct-out config/struct)
+         config/default)

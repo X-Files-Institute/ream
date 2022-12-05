@@ -24,28 +24,42 @@
 ;; SOFTWARE.                                                                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
 #lang racket/base
 
-(require racket/tcp
-         "config.rkt"
-         "handle.rkt")
+(require net/url
+         "http-status-code.rkt"
+         "response.rkt")
 
-#| Takes an IP port number for client connections. |#
-(define (server/start [config config/default])
-  (let ([main-cust (make-custodian)])
+#| If the route is not registered, this exception is thrown when trying to access. |#
+(define-struct No-Handler-Found-Exn (str-path))
 
-    ;; Limit the total memory used by the server
-    (custodian-limit-memory main-cust (config/struct-memory-limit config))
-    
-    (parameterize ([current-custodian main-cust])
-      (let ([listener (tcp-listen (config/struct-port config) 5 #t)])
-        (letrec ([loop (lambda (listener)
-                         (handle/accept listener #:connection-memory-limit (config/struct-connection-memory-limit config))
-                         (loop listener))])
-          (let ([server-thread (thread (lambda () (loop listener)))])
-            (lambda ()
-              (kill-thread server-thread)
-              (tcp-close listener))))))))
+#| The structure of a route |#
+(define-struct route (path function))
 
-(provide server/start)
+#| Use a global hash table to store all routing information. |#
+(define DISPATCH_TABLE (make-hash))
+
+#| return the corresponding handler according to the path. |#
+(define (route/dispatch str-path)
+  (let* ([url (string->url str-path)]
+         [path (map path/param-path (url-path url))]
+         [handler (hash-ref DISPATCH_TABLE (car path) #f)])
+    (if handler
+        (lambda (request-info in out) (handler request-info (url-query url) in out))
+        (raise (No-Handler-Found-Exn str-path)))))
+
+#| register a handle for DISPATCH_TABLE |#
+(define (route/register #:path path #:handle handle)
+  (hash-set! DISPATCH_TABLE path handle))
+
+#| register a html handle |#
+(define (route/register-html-handle #:path path #:handle handle)
+  (route/register #:path path
+                  #:handle (lambda (request-info query in out)
+                             (display (http-status-code/build-status-info 'ok) out)
+                             (display (response/add-type 'html) out)
+                             (handle request-info query in out))))
+  
+
+(provide route/dispatch
+         route/register-html-handle)

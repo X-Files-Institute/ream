@@ -24,28 +24,14 @@
 ;; SOFTWARE.                                                                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
 #lang racket/base
 
-(require racket/tcp
-         "config.rkt"
-         "handle.rkt")
+(require racket/match)
 
-#| Takes an IP port number for client connections. |#
-(define (server/start [config config/default])
-  (let ([main-cust (make-custodian)])
+(define (http-status-code/build-status-info code)
+  (format "HTTP/1.0 ~a Okay\r\n"
+          (match code
+            ['ok 200]
+            [code code])))
 
-    ;; Limit the total memory used by the server
-    (custodian-limit-memory main-cust (config/struct-memory-limit config))
-    
-    (parameterize ([current-custodian main-cust])
-      (let ([listener (tcp-listen (config/struct-port config) 5 #t)])
-        (letrec ([loop (lambda (listener)
-                         (handle/accept listener #:connection-memory-limit (config/struct-connection-memory-limit config))
-                         (loop listener))])
-          (let ([server-thread (thread (lambda () (loop listener)))])
-            (lambda ()
-              (kill-thread server-thread)
-              (tcp-close listener))))))))
-
-(provide server/start)
+(provide http-status-code/build-status-info)

@@ -24,28 +24,18 @@
 ;; SOFTWARE.                                                                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
 #lang racket/base
 
-(require racket/tcp
-         "config.rkt"
-         "handle.rkt")
+(require racket/match)
 
-#| Takes an IP port number for client connections. |#
-(define (server/start [config config/default])
-  (let ([main-cust (make-custodian)])
+#| Unknown HTTP response type |#
+(define-struct Unknow-HTTP-Response-Type-Exn (type))
 
-    ;; Limit the total memory used by the server
-    (custodian-limit-memory main-cust (config/struct-memory-limit config))
-    
-    (parameterize ([current-custodian main-cust])
-      (let ([listener (tcp-listen (config/struct-port config) 5 #t)])
-        (letrec ([loop (lambda (listener)
-                         (handle/accept listener #:connection-memory-limit (config/struct-connection-memory-limit config))
-                         (loop listener))])
-          (let ([server-thread (thread (lambda () (loop listener)))])
-            (lambda ()
-              (kill-thread server-thread)
-              (tcp-close listener))))))))
+#| Add http response header |#
+(define (response/add-type [type 'html])
+  (format "Server: k\r\nContent-Type: ~a\r\n\r\n"
+          (match type
+            ['html "text/html"]
+            [_ (raise (Unknow-HTTP-Response-Type-Exn type))])))
 
-(provide server/start)
+(provide (all-defined-out))

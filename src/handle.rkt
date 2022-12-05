@@ -24,28 +24,40 @@
 ;; SOFTWARE.                                                                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
 #lang racket/base
 
 (require racket/tcp
-         "config.rkt"
-         "handle.rkt")
+         racket/match
+         "request.rkt"
+         "route.rkt"
+         "http-status-code.rkt"
+         "response.rkt")
 
-#| Takes an IP port number for client connections. |#
-(define (server/start [config config/default])
-  (let ([main-cust (make-custodian)])
+#| accepts a connection and returns a stream for input from the client, a stream for output to the client. |#
+(define (handle/accept listener #:connection-memory-limit connection-memory-limit)
+  (let ([connection-cust (make-custodian)])
 
-    ;; Limit the total memory used by the server
-    (custodian-limit-memory main-cust (config/struct-memory-limit config))
+    ;; Limit the memory used by each connection
+    (custodian-limit-memory connection-cust connection-memory-limit)
     
-    (parameterize ([current-custodian main-cust])
-      (let ([listener (tcp-listen (config/struct-port config) 5 #t)])
-        (letrec ([loop (lambda (listener)
-                         (handle/accept listener #:connection-memory-limit (config/struct-connection-memory-limit config))
-                         (loop listener))])
-          (let ([server-thread (thread (lambda () (loop listener)))])
-            (lambda ()
-              (kill-thread server-thread)
-              (tcp-close listener))))))))
+    (parameterize ([current-custodian connection-cust])
+      (let-values ([(in out) (tcp-accept listener)])
+        (let* ([connection-thread (thread
+                                   (lambda ()
+                                     (handle in out)
+                                     (close-input-port in)
+                                     (close-output-port out)))]
+               [watcher-thread (thread
+                                (lambda ()
+                                  (sleep 10)
+                                  (custodian-shutdown-all connection-cust)))])
+          watcher-thread)))))
 
-(provide server/start)
+#| handle a connection |#
+(define (handle in out)
+  (let ([request-info (request/get-info in #:info-type 'header)])
+    (when request-info
+      (let ([handle (route/dispatch (list-ref request-info 1))])
+        (handle request-info in out)))))
+
+(provide handle/accept)
