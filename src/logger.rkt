@@ -26,15 +26,42 @@
 
 #lang racket/base
 
-(require "utils.rkt")
+(require "utils.rkt"
+         racket/date)
 
-(define (log/info msg)
+(define (log/debug message)
+  (display "| ")
+  (parameterize ([foreground-color 'white])
+    (color-display (current-time)))
+  (parameterize ([foreground-color 'blue])
+    (color-display (format "\t[DEBUG  ]\t~a\n" message)))
+  (flush-output))
+
+(define (log/info message)
   (display "| ")
   (parameterize ([foreground-color 'white])
     (color-display (current-time)))
   (parameterize ([foreground-color 'green])
-    (color-display (format "\t[INFO    ]\t~a\n" msg)))
-
+    (color-display (format "\t[INFO   ]\t~a\n" message)))
   (flush-output))
 
-(provide log/info)
+(define (log/warning message)
+  (display "| ")
+  (parameterize ([foreground-color 'white])
+    (color-display (current-time)))
+  (parameterize ([foreground-color 'yellow])
+    (color-display (format "\t[WARNING]\t~a\n" message)))
+  (flush-output))
+
+(define (log/error message)
+  (display "| ")
+  (parameterize ([foreground-color 'white])
+    (color-display (current-time)))
+  (parameterize ([foreground-color 'red])
+    (color-display (format "\t[ERROR  ]\t~a\n" message)))
+  (flush-output))
+
+(provide log/debug
+         log/info
+         log/warning
+         log/error)
