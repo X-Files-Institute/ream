@@ -24,12 +24,14 @@ __This project is still under active development__
 
 run test with `racket test.rkt`:
 ```
-| Monday, December 5th, 2022 9:49:57pm  [INFO    ]      register a html handle on  with #<procedure:...e/rackever/test.rkt:9:10>
-| Monday, December 5th, 2022 9:49:57pm  [INFO    ]      starting server on port 8080
-| Monday, December 5th, 2022 9:49:57pm  [INFO    ]      server start complete
-Press enter to exit server
-
-| Monday, December 5th, 2022 9:49:59pm  [INFO    ]      server down
+$ racket test.rkt                  
+| Tuesday, December 6th, 2022 8:08:05pm [DEBUG  ]       register a handle on hello with #<procedure:...e/rackever/test.rkt:26:23>
+| Tuesday, December 6th, 2022 8:08:05pm [DEBUG  ]       register a handle on  with #<procedure:...e/rackever/test.rkt:22:23>
+| Tuesday, December 6th, 2022 8:08:05pm [INFO   ]       starting server on port 8080
+| Tuesday, December 6th, 2022 8:08:05pm [INFO   ]       server start complete
+| Tuesday, December 6th, 2022 8:08:07pm [INFO   ]       request recevied -> (GET /hello HTTP/1.1 /hello)
+| Tuesday, December 6th, 2022 8:08:11pm [INFO   ]       request recevied -> (GET / HTTP/1.1 /)
+| Tuesday, December 6th, 2022 8:08:15pm [INFO   ]       server down
 ```
 
 ## License
