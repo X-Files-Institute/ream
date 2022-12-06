@@ -4,7 +4,7 @@
 
 low-level, and zero dependencies Racket web server
 
-Rackever
+Ream
 
 </div>
 
@@ -14,13 +14,31 @@ __This project is still under active development__
 
 ## Start
 ```racket
-(route/register-html-handle
- #:path ""
- #:handle (lambda (request-info query in out)
-            (display
-             (xexpr->string '(html (head (title "Hello")) (body "Hi!")))
-             out)))
+(define (hello info)
+  (xexpr->string `(html
+                   (head
+                    (title "Hello"))
+                   (body
+                    (h1 ,(format "Hello ~a!" info))))))
+
+(define server-handle
+  (Ream/:>
+   (Ream/run #:port 8080
+             #:connection-memory-limit (* 5 1024 1024)
+             #:memory-limit (* 500 1024 1024))
+   (Ream/log #:level 'debug)
+   (Ream/router
+    (Ream/get #:path ""
+              #:type 'html
+              #:handle (λ (request-info query in out)
+                         (display (hello "Ream") out)))
+    (Ream/get #:path "hello"
+              #:type 'html
+              #:handle (λ (request-info query in out)
+                         (display (hello "world") out))))))
 ```
+
+## Build and Run
 
 run test with `racket test.rkt`:
 ```
