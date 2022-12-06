@@ -26,25 +26,31 @@
 
 #lang racket/base
 
-#| Default maximum memory usage per connection : 5MB |#
-(define DEFAULT_CONNECTION_MEMORY_LIMIT (* 5 1024 1024))
+(require "src/server.rkt"
+         "src/route.rkt"
+         "src/config.rkt")
 
-#| Default server maximum memory usage : 500MB |#
-(define DEFAULT_SERVER_MEMORY_LIMIT (* 100 DEFAULT_CONNECTION_MEMORY_LIMIT))
+(define (Ream/:> start . middlewares)
+  (map (lambda (f) (f)) middlewares)
+  (start))
 
-#| Default server port |#
-(define DEFAULT_SERVER_PORT 8080)
+(define (Ream/run #:port [port DEFAULT_SERVER_PORT]
+                  #:memory-limit [memory-limit DEFAULT_SERVER_MEMORY_LIMIT]
+                  #:connection-memory-limit [connection-memory-limit DEFAULT_CONNECTION_MEMORY_LIMIT])
+  (lambda ()
+    (server/start (config/struct port memory-limit connection-memory-limit))))
 
-(define-struct config/struct (port memory-limit connection-memory-limit))
+(define (Ream/log #:level [level `info])
+  (lambda () '()))
 
-#| Server default configuration
-|| Port number used by default : 8080
-|| Default server maximum memory usage : 500MB
-|| Default maximum memory usage per connection : 5MB |#
-(define config/default
-  (config/struct DEFAULT_SERVER_PORT
-                 DEFAULT_SERVER_MEMORY_LIMIT
-                 DEFAULT_CONNECTION_MEMORY_LIMIT))
+(define (Ream/router register-handle . register-handles)
+  (lambda ()
+    (map (lambda (f) (f)) register-handles)
+    (register-handle)))
+
+(define (Ream/get #:path path #:handle handle #:type type)
+  (lambda ()
+    (route/register #:path path #:handle handle #:type type)))
 
 (provide (all-from-out)
          (all-defined-out))

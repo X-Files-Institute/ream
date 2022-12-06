@@ -50,18 +50,15 @@
         (raise (No-Handler-Found-Exn str-path)))))
 
 #| register a handle for DISPATCH_TABLE |#
-(define (route/register #:path path #:handle handle)
-  (hash-set! DISPATCH_TABLE path handle))
-
-#| register a html handle |#
-(define (route/register-html-handle #:path path #:handle handle)
-  (log/info (format "register a html handle on ~a with ~a" path handle))
-  (route/register #:path path
-                  #:handle (lambda (request-info query in out)
-                             (display (http-status-code/build-status-info 'ok) out)
-                             (display (response/add-type 'html) out)
-                             (handle request-info query in out))))
+(define (route/register #:path path #:handle handle #:type type)
+  (log/debug (format "register a handle on ~a with ~a" path handle))
+  (hash-set! DISPATCH_TABLE
+             path
+             (lambda (request-info query in out)
+               (display (http-status-code/build-status-info 'ok) out)
+               (display (response/add-type type) out)
+               (handle request-info query in out))))
   
 
 (provide route/dispatch
-         route/register-html-handle)
+         route/register)
