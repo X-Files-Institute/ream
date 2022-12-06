@@ -34,13 +34,17 @@
 
 #| get request info |#
 (define (request/get-info in #:info-type [info-type 'header])
-  (let* ([header (regexp-match #rx"^GET (.+) HTTP/[0-9]+\\.[0-9]+" (read-line in))]
-         [rest (regexp-match #rx"(\r\n|^)\r\n" in)]
-         [full (list header rest)])
-    (match info-type
-      ['header header]
-      ['full full]
-      ['rest rest]
-      [_ (raise (Unknow-Request-Info-Type-Exn info-type))])))
+  (let ([header (read-line in)])
+    ;; filter out eof
+    (if (not (eq? header eof))
+        (let* ([header (regexp-match #rx"^GET (.+) HTTP/[0-9]+\\.[0-9]+" header)]
+               [rest (regexp-match #rx"(\r\n|^)\r\n" in)]
+               [full (list header rest)])
+          (match info-type
+            ['header header]
+            ['full full]
+            ['rest rest]
+            [_ (raise (Unknow-Request-Info-Type-Exn info-type))]))
+        '())))
 
 (provide request/get-info)

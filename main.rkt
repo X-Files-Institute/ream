@@ -30,26 +30,32 @@
          "src/route.rkt"
          "src/config.rkt")
 
+#| Syntactical helper for running all middleware at once.
+|| Note: The server start function must be in the first parameter |#
 (define (Ream/:> start . middlewares)
-  (map (lambda (f) (f)) middlewares)
+  (map (λ (f) (f)) middlewares)
   (start))
 
+#| The server startup function is the encapsulation of server/start. |#
 (define (Ream/run #:port [port DEFAULT_SERVER_PORT]
                   #:memory-limit [memory-limit DEFAULT_SERVER_MEMORY_LIMIT]
                   #:connection-memory-limit [connection-memory-limit DEFAULT_CONNECTION_MEMORY_LIMIT])
-  (lambda ()
+  (λ ()
     (server/start (config/struct port memory-limit connection-memory-limit))))
 
+#| log middleware, currently not implemented |#
 (define (Ream/log #:level [level `info])
-  (lambda () '()))
+  (λ () '()))
 
+#| Routing middleware, the parameter is the routing registration function, run them one by one. |#
 (define (Ream/router register-handle . register-handles)
-  (lambda ()
-    (map (lambda (f) (f)) register-handles)
+  (λ ()
+    (map (λ (f) (f)) register-handles)
     (register-handle)))
 
+#| Register a handle corresponding to the get request for the target path. |#
 (define (Ream/get #:path path #:handle handle #:type type)
-  (lambda ()
+  (λ ()
     (route/register #:path path #:handle handle #:type type)))
 
 (provide (all-from-out)

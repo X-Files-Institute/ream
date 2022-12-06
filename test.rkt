@@ -1,6 +1,7 @@
 #lang racket/base
 
 (require xml
+         "src/logger.rkt"
          "main.rkt")
 
 (define (hello info)
@@ -26,5 +27,5 @@
               #:handle (λ (request-info query in out)
                          (display (hello "world") out))))))
 
-(sleep 10)
+(define x (begin (log/warning "Press enter to exit server!") (read-line)))
 (server-handle)

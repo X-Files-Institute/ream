@@ -32,7 +32,7 @@
          "handle.rkt"
          "logger.rkt")
 
-#| Takes an IP port number for client connections. |#
+#| Start the server, the parameter is the configuration structure of the server. |#
 (define (server/start [config config/default])
   (log/info (format "starting server on port ~a" (config/struct-port config)))
   (let ([main-cust (make-custodian)])
@@ -41,12 +41,12 @@
     
     (parameterize ([current-custodian main-cust])
       (let ([listener (tcp-listen (config/struct-port config) 5 #t)])
-        (letrec ([loop (lambda (listener)
+        (letrec ([loop (λ (listener)
                          (handle/accept listener #:connection-memory-limit (config/struct-connection-memory-limit config))
                          (loop listener))])
-          (let ([server-thread (thread (lambda () (loop listener)))])
+          (let ([server-thread (thread (λ () (loop listener)))])
             (log/info "server start complete")
-            (lambda ()
+            (λ ()
               (log/info "server down")
               (kill-thread server-thread)
               (tcp-close listener))))))))

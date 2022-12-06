@@ -41,58 +41,58 @@
 
 (define decoration-map
   #hasheq(
-          (underline . "\033[4m")
-          (bold . "\033[1m")
-          (reversed . "\033[7m")))
+   (underline . "\033[4m")
+   (bold . "\033[1m")
+   (reversed . "\033[7m")))
 
 (define fore-color-map
   #hasheq(
-          (black . "\033[30m")
-          (red . "\033[31m")
-          (green . "\033[32m")
-          (yellow . "\033[33m")
-          (blue . "\033[34m")
-          (magenta . "\033[35m")
-          (cyan . "\033[36m")
-          (white . "\033[37m")
-          (b-black . "\033[30;1m")
-          (b-red . "\033[31;1m")
-          (b-green . "\033[32;1m")
-          (b-yellow . "\033[33;1m")
-          (b-blue . "\033[34;1m")
-          (b-magenta . "\033[35;1m")
-          (b-cyan . "\033[36;1m")
-          (b-white . "\033[37;1m")))
+   (black . "\033[30m")
+   (red . "\033[31m")
+   (green . "\033[32m")
+   (yellow . "\033[33m")
+   (blue . "\033[34m")
+   (magenta . "\033[35m")
+   (cyan . "\033[36m")
+   (white . "\033[37m")
+   (b-black . "\033[30;1m")
+   (b-red . "\033[31;1m")
+   (b-green . "\033[32;1m")
+   (b-yellow . "\033[33;1m")
+   (b-blue . "\033[34;1m")
+   (b-magenta . "\033[35;1m")
+   (b-cyan . "\033[36;1m")
+   (b-white . "\033[37;1m")))
 
 (define bkg-color-map
   #hasheq(
-          (black . "\033[40m")
-          (red . "\033[41m")
-          (green . "\033[42m")
-          (yellow . "\033[43m")
-          (blue . "\033[44m")
-          (magenta . "\033[45m")
-          (cyan . "\033[46m")
-          (white . "\033[47m")
-          (b-black . "\033[40;1m")
-          (b-red . "\033[41;1m")
-          (b-green . "\033[42;1m")
-          (b-yellow . "\033[43;1m")
-          (b-blue . "\033[44;1m")
-          (b-magenta . "\033[45;1m")
-          (b-cyan . "\033[46;1m")
-          (b-white . "\033[47;1m")))
+   (black . "\033[40m")
+   (red . "\033[41m")
+   (green . "\033[42m")
+   (yellow . "\033[43m")
+   (blue . "\033[44m")
+   (magenta . "\033[45m")
+   (cyan . "\033[46m")
+   (white . "\033[47m")
+   (b-black . "\033[40;1m")
+   (b-red . "\033[41;1m")
+   (b-green . "\033[42;1m")
+   (b-yellow . "\033[43;1m")
+   (b-blue . "\033[44;1m")
+   (b-magenta . "\033[45;1m")
+   (b-cyan . "\033[46;1m")
+   (b-white . "\033[47;1m")))
 
 ;; customization parameters
 
 (define background-color (make-parameter ""
-                                         (lambda (arg) (as-escape-seq #t arg))))
+                                         (λ (arg) (as-escape-seq #t arg))))
 
 (define foreground-color (make-parameter ""
-                                         (lambda (arg) (as-escape-seq #f arg))))
+                                         (λ (arg) (as-escape-seq #f arg))))
 
 (define font-style (make-parameter ""
-                                   (lambda (arg) (as-style-seq arg))))
+                                   (λ (arg) (as-style-seq arg))))
 
 (define no-reset (make-parameter #f))
 
@@ -113,7 +113,7 @@
   (match arg
     [(? null?) ""]
     ["" ""]
-    [(? symbol? s) (hash-ref map s (lambda () (raise-arg-error)))]
+    [(? symbol? s) (hash-ref map s (λ () (raise-arg-error)))]
     [(? integer? x)
      #:when (and (<= x 255) (>= x 0))
      ((if bkg? bkg-color256 fore-color256) x)]
@@ -128,7 +128,7 @@
   (match arg
     ["" ""]
     [(? null?) ""]
-    [(? symbol? s) (hash-ref decoration-map s (lambda () (raise-arg-error)))]
+    [(? symbol? s) (hash-ref decoration-map s (λ () (raise-arg-error)))]
     [_ (raise-arg-error)]))
 
 (define (needs-reset? bkg fore style)

@@ -40,16 +40,20 @@ __This project is still under active development__
 
 ## Build and Run
 
-run test with `racket test.rkt`:
+run test with `racket test.rkt`.
+
+Then you can try to access the registered route, such as `127.0.0.1:8080` or `127.0.0.1:8080/hello`, or you can access the unregistered route, such as `127.0.0.1:8080/x`, view the output of the console:
 ```
-$ racket test.rkt                  
-| Tuesday, December 6th, 2022 8:08:05pm [DEBUG  ]       register a handle on hello with #<procedure:...e/rackever/test.rkt:26:23>
-| Tuesday, December 6th, 2022 8:08:05pm [DEBUG  ]       register a handle on  with #<procedure:...e/rackever/test.rkt:22:23>
-| Tuesday, December 6th, 2022 8:08:05pm [INFO   ]       starting server on port 8080
-| Tuesday, December 6th, 2022 8:08:05pm [INFO   ]       server start complete
-| Tuesday, December 6th, 2022 8:08:07pm [INFO   ]       request recevied -> (GET /hello HTTP/1.1 /hello)
-| Tuesday, December 6th, 2022 8:08:11pm [INFO   ]       request recevied -> (GET / HTTP/1.1 /)
-| Tuesday, December 6th, 2022 8:08:15pm [INFO   ]       server down
+$ racket test.rkt
+| Tuesday, December 6th, 2022 8:53:19pm [DEBUG  ]       register a handle on hello with #<procedure:...space/ream/test.rkt:27:23>
+| Tuesday, December 6th, 2022 8:53:19pm [DEBUG  ]       register a handle on  with #<procedure:...space/ream/test.rkt:23:23>
+| Tuesday, December 6th, 2022 8:53:19pm [INFO   ]       starting server on port 8080
+| Tuesday, December 6th, 2022 8:53:19pm [INFO   ]       server start complete
+| Tuesday, December 6th, 2022 8:53:19pm [WARNING]       Press enter to exit server!
+| Tuesday, December 6th, 2022 8:53:25pm [INFO   ]       request recevied -> (GET / HTTP/1.1 /)
+| Tuesday, December 6th, 2022 8:53:31pm [INFO   ]       request recevied -> (GET /hello HTTP/1.1 /hello)
+| Tuesday, December 6th, 2022 8:53:35pm [INFO   ]       request recevied -> (GET /x HTTP/1.1 /x)
+| Tuesday, December 6th, 2022 8:53:35pm [ERROR  ]       No handler found! Router path -> /x
 ```
 
 ## License

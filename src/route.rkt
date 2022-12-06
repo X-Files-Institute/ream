@@ -32,7 +32,7 @@
          "logger.rkt")
 
 #| If the route is not registered, this exception is thrown when trying to access. |#
-(define-struct No-Handler-Found-Exn (str-path))
+(define-struct No-Handler-Found-Exn (path))
 
 #| The structure of a route |#
 (define-struct route (path function))
@@ -46,7 +46,7 @@
          [path (map path/param-path (url-path url))]
          [handler (hash-ref DISPATCH_TABLE (car path) #f)])
     (if handler
-        (lambda (request-info in out) (handler request-info (url-query url) in out))
+        (λ (request-info in out) (handler request-info (url-query url) in out))
         (raise (No-Handler-Found-Exn str-path)))))
 
 #| register a handle for DISPATCH_TABLE |#
@@ -54,11 +54,12 @@
   (log/debug (format "register a handle on ~a with ~a" path handle))
   (hash-set! DISPATCH_TABLE
              path
-             (lambda (request-info query in out)
+             (λ (request-info query in out)
                (display (http-status-code/build-status-info 'ok) out)
                (display (response/add-type type) out)
                (handle request-info query in out))))
   
 
 (provide route/dispatch
-         route/register)
+         route/register
+         (struct-out No-Handler-Found-Exn))
