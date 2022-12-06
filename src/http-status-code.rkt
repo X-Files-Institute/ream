@@ -32,6 +32,7 @@
   (format "HTTP/1.0 ~a Okay\r\n"
           (match code
             ['ok 200]
+            [`bad-gateway 502]
             [code code])))
 
 (provide http-status-code/build-status-info)

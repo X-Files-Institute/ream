@@ -26,7 +26,8 @@
 
 #lang racket/base
 
-(require racket/match)
+(require racket/match
+         "http-status-code.rkt")
 
 #| Unknown HTTP response type |#
 (define-struct Unknow-HTTP-Response-Type-Exn (type))
@@ -37,5 +38,11 @@
           (match type
             ['html "text/html"]
             [_ (raise (Unknow-HTTP-Response-Type-Exn type))])))
+
+#| Respond with a 502 status code and display the message |#
+(define (response/502 message out)
+  (display (response/add-type 'html) out)
+  (display message out)
+  (display (http-status-code/build-status-info 'bad-gateway) out))
 
 (provide (all-defined-out))
