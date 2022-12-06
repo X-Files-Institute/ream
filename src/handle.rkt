@@ -44,22 +44,27 @@
     (parameterize ([current-custodian connection-cust])
       (let-values ([(in out) (tcp-accept listener)])
         (let* ([connection-thread (thread
-                                   (lambda ()
+                                   (λ ()
                                      (handle in out)
                                      (close-input-port in)
                                      (close-output-port out)))]
                [watcher-thread (thread
-                                (lambda ()
+                                (λ ()
                                   (sleep 10)
                                   (custodian-shutdown-all connection-cust)))])
           watcher-thread)))))
 
 #| handle a connection |#
 (define (handle in out)
-  (let ([request-info (request/get-info in #:info-type 'header)])
-    (when request-info
-      (log/info (format "request recevied -> ~a" request-info))
-      (let ([handle (route/dispatch (list-ref request-info 1))])
-        (handle request-info in out)))))
+  (with-handlers
+      ([No-Handler-Found-Exn? (λ (e)
+                                (let ([error-info (format "No handler found! Router path -> ~a" (No-Handler-Found-Exn-path e))])
+                                  (log/error error-info)
+                                  (response/502 error-info out)))])
+    (let ([request-info (request/get-info in #:info-type 'header)])
+      (when request-info
+        (log/info (format "request recevied -> ~a" request-info))
+        (let ([handle (route/dispatch (list-ref request-info 1))])
+          (handle request-info in out))))))
 
 (provide handle/accept)
