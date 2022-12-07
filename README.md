@@ -6,16 +6,16 @@ low-level, and zero dependencies Racket web server
 
 Ream
 
-</div>
-
 ---
 
 __This project is still under active development__
 
-## Demo
 ![.github/demo.jpg](.github/demo.jpg)
 
-## Build and Run
+</div>
+
+## Start
+All middleware is defined in main.rkt with detailed comments, very simple, no need to say~
 
 run test with `racket test.rkt`.
 
