@@ -26,8 +26,7 @@
 
 #lang racket/base
 
-(require "utils.rkt"
-         racket/date)
+(require "utils.rkt")
 
 (define (log/debug message)
   (display "| ")

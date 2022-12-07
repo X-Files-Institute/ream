@@ -27,10 +27,8 @@
 #lang racket/base
 
 (require racket/tcp
-         racket/match
          "request.rkt"
          "route.rkt"
-         "http-status-code.rkt"
          "logger.rkt"
          "response.rkt")
 
@@ -40,14 +38,14 @@
 
     ;; Limit the memory used by each connection
     (custodian-limit-memory connection-cust connection-memory-limit)
-    
+
     (parameterize ([current-custodian connection-cust])
       (let-values ([(in out) (tcp-accept listener)])
-        (let* ([connection-thread (thread
-                                   (λ ()
-                                     (handle in out)
-                                     (close-input-port in)
-                                     (close-output-port out)))]
+        (let* ([_ (thread
+                   (λ ()
+                     (handle in out)
+                     (close-input-port in)
+                     (close-output-port out)))]
                [watcher-thread (thread
                                 (λ ()
                                   (sleep 10)
