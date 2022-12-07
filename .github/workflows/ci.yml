@@ -21,9 +21,9 @@ jobs:
           distribution: full
           variant: ${{ matrix.racket-variant }}
           version: ${{ matrix.racket-version }}
-      - name: Installing rackever and its dependencies
-        run: raco pkg install --no-docs --auto --name rackever
-      - name: Compiling rackever and building its docs
-        run: raco setup --check-pkg-deps --unused-pkg-deps rackever
-      - name: Testing rackever
-        run: raco test -x -p rackever
+      - name: Installing ream and its dependencies
+        run: raco pkg install --no-docs --auto --name ream
+      - name: Compiling ream and building its docs
+        run: raco setup --check-pkg-deps --unused-pkg-deps ream
+      - name: Testing ream
+        run: raco test -x -p ream
