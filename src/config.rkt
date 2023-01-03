@@ -35,16 +35,22 @@
 #| Default server port |#
 (define DEFAULT_SERVER_PORT 8080)
 
-(define-struct config/struct (port memory-limit connection-memory-limit))
+#| Default server ip |#
+(define DEFAULT_SERVER_IP "127.0.0.1")
+
+(define-struct config/struct (ip port memory-limit connection-memory-limit))
 
 #| Server default configuration
+|| IP used by default : 127.0.0.1
 || Port number used by default : 8080
 || Default server maximum memory usage : 500MB
 || Default maximum memory usage per connection : 5MB |#
 (define config/default
-  (config/struct DEFAULT_SERVER_PORT
-                 DEFAULT_SERVER_MEMORY_LIMIT
-                 DEFAULT_CONNECTION_MEMORY_LIMIT))
+  (config/struct
+   DEFAULT_SERVER_IP
+   DEFAULT_SERVER_PORT
+   DEFAULT_SERVER_MEMORY_LIMIT
+   DEFAULT_CONNECTION_MEMORY_LIMIT))
 
 (provide (all-from-out)
          (all-defined-out))

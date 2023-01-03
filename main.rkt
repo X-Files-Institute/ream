@@ -37,11 +37,12 @@
   (start))
 
 #| The server startup function is the encapsulation of server/start. |#
-(define (Ream/run #:port [port DEFAULT_SERVER_PORT]
+(define (Ream/run #:ip [ip DEFAULT_SERVER_IP]
+                  #:port [port DEFAULT_SERVER_PORT]
                   #:memory-limit [memory-limit DEFAULT_SERVER_MEMORY_LIMIT]
                   #:connection-memory-limit [connection-memory-limit DEFAULT_CONNECTION_MEMORY_LIMIT])
   (λ ()
-    (server/start (config/struct port memory-limit connection-memory-limit))))
+    (server/start (config/struct ip port memory-limit connection-memory-limit))))
 
 #| log middleware, currently not implemented |#
 (define (Ream/log #:level [level `info])

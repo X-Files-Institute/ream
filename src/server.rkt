@@ -34,13 +34,13 @@
 
 #| Start the server, the parameter is the configuration structure of the server. |#
 (define (server/start [config config/default])
-  (log/info (format "starting server on port ~a" (config/struct-port config)))
+  (log/info (format "starting server on ~a:~a" (config/struct-ip config) (config/struct-port config)))
   (let ([main-cust (make-custodian)])
     ;; Limit the total memory used by the server
     (custodian-limit-memory main-cust (config/struct-memory-limit config))
     
     (parameterize ([current-custodian main-cust])
-      (let ([listener (tcp-listen (config/struct-port config) 5 #t)])
+      (let ([listener (tcp-listen (config/struct-port config) 5 #f (config/struct-ip config))])
         (letrec ([loop (λ (listener)
                          (handle/accept listener #:connection-memory-limit (config/struct-connection-memory-limit config))
                          (loop listener))])
