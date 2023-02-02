@@ -24,27 +24,32 @@
 ;; SOFTWARE.                                                                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-#lang racket/base
+#lang typed/racket
 
 #| Default maximum memory usage per connection : 5MB |#
+(: DEFAULT_CONNECTION_MEMORY_LIMIT Real)
 (define DEFAULT_CONNECTION_MEMORY_LIMIT (* 5 1024 1024))
 
 #| Default server maximum memory usage : 500MB |#
+(: DEFAULT_SERVER_MEMORY_LIMIT Real)
 (define DEFAULT_SERVER_MEMORY_LIMIT (* 100 DEFAULT_CONNECTION_MEMORY_LIMIT))
 
 #| Default server port |#
+(: DEFAULT_SERVER_PORT Real)
 (define DEFAULT_SERVER_PORT 8080)
 
 #| Default server ip |#
+(: DEFAULT_SERVER_IP String)
 (define DEFAULT_SERVER_IP "127.0.0.1")
 
-(define-struct config/struct (ip port memory-limit connection-memory-limit))
+(struct config/struct ([ip : String] [port : Real] [memory-limit : Real] [connection-memory-limit : Real]))
 
 #| Server default configuration
 || IP used by default : 127.0.0.1
 || Port number used by default : 8080
 || Default server maximum memory usage : 500MB
 || Default maximum memory usage per connection : 5MB |#
+(: config/default config/struct)
 (define config/default
   (config/struct
    DEFAULT_SERVER_IP
